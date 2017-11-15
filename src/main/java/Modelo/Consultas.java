@@ -18,6 +18,11 @@ public class Consultas {
     ArrayList<Cliente> losclientes;
     
     public Consultas() throws ClassNotFoundException, SQLException{
+        
+        
+    }
+    
+    public ArrayList<Cliente> devolverLista() throws SQLException, ClassNotFoundException{
         losclientes = new ArrayList<Cliente>();
         miconexion = new Conexion().abrirConexion();
         consultaClientes = "select nombre, apellido, provincia , poblacion from misclientes";
@@ -33,9 +38,6 @@ public class Consultas {
             losclientes.add(micliente);
         }
         
-    }
-    
-    public ArrayList<Cliente> devolverLista(){
         return losclientes;
     }
     

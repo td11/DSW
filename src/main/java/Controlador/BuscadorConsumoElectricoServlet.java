@@ -1,6 +1,7 @@
 package Controlador;
 
 import Modelo.Cliente;
+import Modelo.Consultas;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -10,9 +11,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,11 +30,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
 
     //Variables
     ServletConfig config;
-    private String dbUrl;
-    private String dbUser;
-    private String dbPassword;
-    private Integer dbPageSize;
-    private Integer DEFAULT_PAGESIZE;
+
 
     //Variables para conectarse
     Connection conexion = null;
@@ -39,6 +38,30 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
     //ArrayList de objetos
     ArrayList<Cliente> listaclientes = new ArrayList();
 
+
+    public String devolverLista(){
+        StringBuilder sb = new StringBuilder();
+        
+        try {
+            ArrayList<Cliente> lista = new Consultas().devolverLista();    
+            for (int i = 0; i < lista.size(); i++) {
+                sb.append("<tr>");
+                sb.append("<td>"+lista.get(i).getNombre()+" "+lista.get(i).getApellidos()+"</td>");
+                sb.append("<td>"+lista.get(i).getProvincia()+"</td>");
+                sb.append("<td>"+lista.get(i).getPoblacion()+"</td>");
+                sb.append("</tr>");
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return sb.toString();
+        
+    }
+    
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -64,14 +87,12 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
 
             String nombre = request.getParameter("nameToSearch");
 
-            //Conectarse 
-            conectarse();
 
             //Comprobamos si la conexion no tuvo errores
             if (conexion != null) {
                 //Verificamos si el usuario queria buscar un cliente o no
                 if (nombre.isEmpty()) {
-                    todosLosClientes();
+                    
                 } else {
                    // buscarCliente();
                 }
@@ -121,15 +142,58 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int page = 1;
+        int recordsPerPage = 5;
+        int noDeResultados;
+        int noDePaginas;
+        ArrayList<Cliente> lista = null;
+        String cliente = request.getParameter("nameToSearch");
+        
+        if(request.getParameter("paginas") != null)
+            page = Integer.parseInt(request.getParameter("paginas"));
+        
+        
         try {
-            processRequest(request, response);
+            
+            lista = new Consultas().devolverLista();
+            noDeResultados = lista.size();
+            noDePaginas = (int) Math.ceil(noDeResultados * 1.0 / recordsPerPage);
+            request.setAttribute("numeroDePaginas",noDePaginas);
+            request.setAttribute("paginaActual", page);
+            request.setAttribute("cliente",cliente);
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
+        
     }
+    
+    /* Cosas que seguir probando 
+        try {
+            
+            ArrayList<Cliente> lista = new Consultas().devolverLista();
+            int noDeResultados = lista.size();
+            int noDePaginas = (int) Math.ceil(noDeResultados * 1.0 / recordsPerPage);
+            request.setAttribute("listaClientes", lista);
+            request.setAttribute("numeroDePaginas",noDePaginas);
+            request.setAttribute("paginaActual", page);
+            request.setAttribute("cliente",cliente);
+            RequestDispatcher vista = request.getRequestDispatcher("/vista/JSP/misclientesList.jsp");
+            vista.forward(request, response);
 
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    */
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -158,97 +222,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    //Para conectarse a la base de datos
-    public void conectarse() throws SQLException {
-        //conexion = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-        conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/consumoelectrico", "2dawa", "2dawa");
-    }
 
-    public void todosLosClientes() throws SQLException {
-        Cliente elCliente;
-
-        Statement s = conexion.createStatement();
-        s.setMaxRows(dbPageSize);
-        //Realizamos una consulta para obtener el id del primer contacto
-        ResultSet rs = s.executeQuery("select * from misclientes");
-
-        while (rs.next()) {
-            elCliente = new Cliente();
-            elCliente.setClNo(rs.getInt("Id"));
-            elCliente.setNombre(rs.getString("nombre"));
-            elCliente.setApellidos(rs.getString("apellido"));
-
-            listaclientes.add(elCliente);
-        }
-
-    }
-    
-    //Se usa para el archivo JSP
-    public LinkedList<Cliente> devolverClientes() throws SQLException {
-        LinkedList<Cliente> listaClientes = new LinkedList<>();
-        //inicio(config);
-        conectarse();
-        
-            Statement st = conexion.createStatement();
-            ResultSet rs = st.executeQuery("select nombre,apellidos,provincia,poblacion from misclientes limit 0,10");
-            while (rs.next()) {
-                Cliente cliente = new Cliente();
-                cliente.setNombre(rs.getString("nombre"));
-                cliente.setApellidos(rs.getString("apellidos"));
-                cliente.setProvincia(rs.getString("provincia"));
-                cliente.setPoblacion(rs.getString("poblacion"));
-                
-                listaClientes.add(cliente);
-            }
-            rs.close();
-            st.close();
-            conexion.close();
-            
-        return listaClientes;
-    }
-    
-    //Init para el JSP
-    public void inicio(ServletConfig config){
-        
-        try {
-            String configBundleName = config.getInitParameter("app.config");
-            ResourceBundle rb = ResourceBundle.getBundle(configBundleName);
-            this.dbUrl = rb.getString("database.url");
-            this.dbUser = rb.getString("database.user");
-            this.dbPassword = rb.getString("database.password");
-            this.dbPageSize = rb.getString("database.pageSize") == null ? DEFAULT_PAGESIZE : Integer.parseInt(rb.getString("database.pageSize"));
-
-            String driverClassName = rb.getString("database.driver");
-
-            Class.forName(driverClassName);
-
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Error de algo en el init uuuuh");
-        }
-    }
-    
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-
-        super.init(config);
-
-        try {
-            String configBundleName = config.getInitParameter("app.config");
-            ResourceBundle rb = ResourceBundle.getBundle(configBundleName);
-            this.dbUrl = rb.getString("database.url");
-            this.dbUser = rb.getString("database.user");
-            this.dbPassword = rb.getString("database.password");
-            this.dbPageSize = rb.getString("database.pageSize") == null ? DEFAULT_PAGESIZE : Integer.parseInt(rb.getString("database.pageSize"));
-
-            String driverClassName = rb.getString("database.driver");
-
-            Class.forName(driverClassName);
-
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Error de algo en el init uuuuh");
-        }
-
-    }
+  
 
 }
