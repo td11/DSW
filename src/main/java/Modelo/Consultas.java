@@ -15,20 +15,28 @@ public class Consultas {
     String consultaClientes;
     Connection miconexion;
     PreparedStatement consultar;
-    Cliente micliente;
     ArrayList<Cliente> losclientes;
     
-    public Consultas(int limite) throws ClassNotFoundException, SQLException{
+    public Consultas() throws ClassNotFoundException, SQLException{
+        losclientes = new ArrayList<Cliente>();
         miconexion = new Conexion().abrirConexion();
-        consultaClientes = "select nombre, apellido, provincia , poblacion from misclientes LIMIT ? ,10";
+        consultaClientes = "select nombre, apellido, provincia , poblacion from misclientes";
         consultar = miconexion.prepareStatement(consultaClientes);
-        consultar.setInt(1, limite);
         ResultSet rs =consultar.executeQuery();
         
         while(rs.next()){
-            
+            Cliente micliente = new Cliente();
+            micliente.setNombre(rs.getString("nombre"));
+            micliente.setApellidos(rs.getString("apellido"));
+            micliente.setPoblacion(rs.getString("poblacion"));
+            micliente.setProvincia(rs.getString("provincia"));
+            losclientes.add(micliente);
         }
         
+    }
+    
+    public ArrayList<Cliente> devolverLista(){
+        return losclientes;
     }
     
     

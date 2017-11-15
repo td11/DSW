@@ -6,7 +6,7 @@ package Modelo;
  */
 public class Cliente {
     
-      private Integer clNo;
+    private Integer clNo;
     private String nombre;
     private String apellidos;
     private String poblacion;

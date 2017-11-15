@@ -197,6 +197,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
                 cliente.setApellidos(rs.getString("apellidos"));
                 cliente.setProvincia(rs.getString("provincia"));
                 cliente.setPoblacion(rs.getString("poblacion"));
+                
                 listaClientes.add(cliente);
             }
             rs.close();

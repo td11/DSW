@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>es.cifpcm</groupId>
-    <artifactId>ConsumoElectrico_Teo</artifactId>
+    <artifactId>ConsumoElectrico_Teo_Ampliacion</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>ConsumoElectrico_Teo</name>
+    <name>ConsumoElectrico_Teo_Ampliacion</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
