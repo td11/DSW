@@ -7,27 +7,31 @@ import java.util.ResourceBundle;
 
 /**
  * Gestionar conexion a la base de datos
+ *
  * @author Teddy
  */
 public class Conexion {
-    
-    private ResourceBundle rb = ResourceBundle.getBundle("consumoelectrico");
-    private String driver = rb.getString("database.driver");
-    private String url = rb.getString("database.url");
-    private String user = rb.getString("database.user");
-    private String password = rb.getString("database.password");
+
+    private ResourceBundle rb;
+    private String driver, url, user, password;
     private Connection conexion;
 
     public Conexion() {
-        
+        rb = ResourceBundle.getBundle("consumoelectrico");
+        driver = rb.getString("database.driver");
+        url = rb.getString("database.url");
+        user = rb.getString("database.user");
+        password = rb.getString("database.password");
     }
 
-    public Connection abrirConexion() throws ClassNotFoundException, SQLException {
+    public void abrirConexion() throws ClassNotFoundException, SQLException {
         Class.forName(this.driver);
         conexion = DriverManager.getConnection(this.url, this.user, this.password);
+    }
+
+    //Getters y Setters
+    public Connection getConexion() {
         return conexion;
     }
-    
-    
-    
+
 }

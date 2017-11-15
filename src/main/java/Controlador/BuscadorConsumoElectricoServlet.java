@@ -1,7 +1,7 @@
 package Controlador;
 
 import Modelo.Cliente;
-import Modelo.Consultas;
+import Modelo.Modelo;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -31,37 +31,13 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
     //Variables
     ServletConfig config;
 
-
-    //Variables para conectarse
-    Connection conexion = null;
-
     //ArrayList de objetos
     ArrayList<Cliente> listaclientes = new ArrayList();
 
-
-    public String devolverLista(){
-        StringBuilder sb = new StringBuilder();
-        
-        try {
-            ArrayList<Cliente> lista = new Consultas().devolverLista();    
-            for (int i = 0; i < lista.size(); i++) {
-                sb.append("<tr>");
-                sb.append("<td>"+lista.get(i).getNombre()+" "+lista.get(i).getApellidos()+"</td>");
-                sb.append("<td>"+lista.get(i).getProvincia()+"</td>");
-                sb.append("<td>"+lista.get(i).getPoblacion()+"</td>");
-                sb.append("</tr>");
-            }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return sb.toString();
-        
+    public String devolverContenido(int paginas) throws ClassNotFoundException, SQLException {
+        return new Modelo().devolverTabla(paginas);
     }
-    
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -75,60 +51,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Buscador de Clientes</title>");
-            out.println("<link rel='stylesheet' type='text/css' href='CSS/estilo.css'>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Clientes listados</h1>");
-
-            String nombre = request.getParameter("nameToSearch");
-
-
-            //Comprobamos si la conexion no tuvo errores
-            if (conexion != null) {
-                //Verificamos si el usuario queria buscar un cliente o no
-                if (nombre.isEmpty()) {
-                    
-                } else {
-                   // buscarCliente();
-                }
-            } else {
-                out.println("<h2>Error no se han encontrado los clientes</h2>");
-            }
-
-            //Imprimir si el arraylist de clientes no esta vacio
-            if (listaclientes.isEmpty()) {
-                out.println("<h3>Vuelva a la página de inicio e intentelo de nuevo</h3>");
-            } else {
-                //Dibujamos la tabla
-                out.println("<h2>Tabla de clientes</h2>");
-                out.println("<table>");
-                //Cabecero
-                out.println("<tr>");
-                out.println("<th>ID</th>");
-                out.println("<th>Nombre</th>");
-                out.println("<th>Apellido</th>");
-                out.println("</tr>");
-                //Imprimimos contenido
-                for (int i = 0; i < listaclientes.size(); i++) {
-                    Cliente uncliente = new Cliente();
-                    uncliente = listaclientes.get(i);
-                    out.println("<tr>");
-                    out.println("<td>"+uncliente.getClNo()+"</td>");
-                    out.println("<td>"+uncliente.getNombre()+"</td>");
-                    out.println("<td>"+uncliente.getApellidos()+"</td>");
-                    out.println("</tr>");
-                }
-                out.println("</table>");
-                        
-            }
-
-            out.println("</body>");
-            out.println("</html>");
+            
         }
     }
 
@@ -143,57 +66,11 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int page = 1;
-        int recordsPerPage = 5;
-        int noDeResultados;
-        int noDePaginas;
-        ArrayList<Cliente> lista = null;
         String cliente = request.getParameter("nameToSearch");
-        
-        if(request.getParameter("paginas") != null)
-            page = Integer.parseInt(request.getParameter("paginas"));
-        
-        
-        try {
-            
-            lista = new Consultas().devolverLista();
-            noDeResultados = lista.size();
-            noDePaginas = (int) Math.ceil(noDeResultados * 1.0 / recordsPerPage);
-            request.setAttribute("numeroDePaginas",noDePaginas);
-            request.setAttribute("paginaActual", page);
-            request.setAttribute("cliente",cliente);
-            
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
-        
+        request.setAttribute("cliente", cliente);
+        getServletContext().getRequestDispatcher("/vista/JSP/misclientesList.jsp").forward(request, response);
     }
-    
-    /* Cosas que seguir probando 
-        try {
-            
-            ArrayList<Cliente> lista = new Consultas().devolverLista();
-            int noDeResultados = lista.size();
-            int noDePaginas = (int) Math.ceil(noDeResultados * 1.0 / recordsPerPage);
-            request.setAttribute("listaClientes", lista);
-            request.setAttribute("numeroDePaginas",noDePaginas);
-            request.setAttribute("paginaActual", page);
-            request.setAttribute("cliente",cliente);
-            RequestDispatcher vista = request.getRequestDispatcher("/vista/JSP/misclientesList.jsp");
-            vista.forward(request, response);
 
-            
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(BuscadorConsumoElectricoServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    */
-    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -221,8 +98,5 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-
-  
 
 }

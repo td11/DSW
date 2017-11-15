@@ -11,10 +11,12 @@ public class Cliente {
     private String apellidos;
     private String poblacion;
     private String provincia;
-    
-    public Cliente(){
-        
+
+    public Cliente() {
+
     }
+    
+    
 
     
     public Integer getClNo() {
