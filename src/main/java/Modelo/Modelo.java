@@ -47,5 +47,32 @@ public class Modelo {
 
         return sb.toString();
     }
+    
+    public ArrayList<Cliente> devolverClientes() throws SQLException, ClassNotFoundException {
+        StringBuilder sb = new StringBuilder();
+        miconexion.abrirConexion();
+        consultaClientes = "select nombre, apellido, provincia , poblacion from misclientes";
+        ps = miconexion.getConexion().prepareStatement(consultaClientes);
+        ResultSet rs = ps.executeQuery();
+        Cliente micliente;
+        ArrayList<Cliente> lista = new ArrayList<Cliente>();
+
+        while (rs.next()) {
+            micliente = new Cliente();
+           
+            micliente.setNombre(rs.getString("nombre")); 
+            micliente.setApellidos(rs.getString("apellido"));
+            micliente.setPoblacion(rs.getString("poblacion"));
+            micliente.setProvincia(rs.getString("provincia"));
+            
+            lista.add(micliente);
+        }
+
+        rs.close();
+        ps.close();
+        miconexion.getConexion().close();
+
+        return lista;
+    }
 
 }

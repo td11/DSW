@@ -29,6 +29,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
     public String devolverContenido(int paginas) throws ClassNotFoundException, SQLException {
         return new Modelo().devolverTabla(paginas);
     }
+    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
