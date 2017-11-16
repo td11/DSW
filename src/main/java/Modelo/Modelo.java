@@ -22,6 +22,7 @@ public class Modelo {
     }
 
     public String devolverTabla(int rango) throws SQLException, ClassNotFoundException {
+        
         StringBuilder sb = new StringBuilder();
         miconexion.abrirConexion();
         consultaClientes = "select nombre, apellido, provincia , poblacion from misclientes LIMIT 0,?";
