@@ -4,8 +4,6 @@
     Author     : Teddy
 --%>
 
-
-
 <%@page import="Controlador.BuscadorConsumoElectricoServlet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% String lista = new BuscadorConsumoElectricoServlet().devolverContenido(Integer.parseInt(request.getAttribute("paginas").toString())); %>

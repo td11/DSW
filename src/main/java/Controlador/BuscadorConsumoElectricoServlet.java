@@ -4,18 +4,10 @@ import Modelo.Cliente;
 import Modelo.Modelo;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -55,7 +47,7 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -67,10 +59,13 @@ public class BuscadorConsumoElectricoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String cliente = request.getParameter("nameToSearch");
+        String paginas = request.getParameter("paginas");
         request.setAttribute("cliente", cliente);
+        request.setAttribute("paginas",paginas);
         getServletContext().getRequestDispatcher("/vista/JSP/misclientesList.jsp").forward(request, response);
     }
 
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>POST</code> method.
      *
